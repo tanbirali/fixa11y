@@ -2,7 +2,8 @@
 
 AI-powered accessibility fixing tool
 
-🚀 Getting Started
+### 🚀 Getting Started
+
 Follow these steps to set up and run the project locally.
 
 **Step 1: Clone the Repository**

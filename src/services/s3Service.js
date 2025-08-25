@@ -60,6 +60,7 @@ const getDomSnapshot = async (key) => {
 };
 
 module.exports = {
+  s3Client,
   uploadDomObject,
   getDomSnapshot,
 };

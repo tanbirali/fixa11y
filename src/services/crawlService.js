@@ -95,7 +95,26 @@ const crawlMultiPage = async (url, jobId) => {
   }
 };
 
+const crawlPageAndReturnDom = async (url) => {
+  let browser;
+  try {
+    browser = await launchBrowser();
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
+    const domContent = await page.content();
+    return domContent;
+  } catch (error) {
+    console.error(`Error crawling single page for DOM content ${url}:`, error);
+    throw error;
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+};
+
 module.exports = {
   crawlSinglePage,
+  crawlPageAndReturnDom,
   crawlMultiPage,
 };

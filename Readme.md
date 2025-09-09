@@ -27,7 +27,7 @@ cp .env.example .env
 ```
 
 **Step 3: Setup the frontend**
-Navigate to the `fontend` directory.
+Navigate to the `frontend` directory.
 
 ```bash
 cd frontend

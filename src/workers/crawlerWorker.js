@@ -26,8 +26,9 @@ const worker = new Worker(
         domContent = await crawlService.crawlPageAndReturnDom(url);
         domSnapshotKey = await crawlService.crawlMultiPage(url, jobId);
       } else {
-        domContent = await crawlService.crawlPageAndReturnDom(url);
-        domSnapshotKey = await crawlService.crawlSinglePage(url, jobId);
+        const result = await crawlService.crawlSinglePage(url, jobId);
+        domContent = result.domContent;
+        domSnapshotKey = result.s3Url;
       }
       console.log(
         `Job ${jobId} completed successfully. Result: ${domSnapshotKey}`
@@ -49,38 +50,12 @@ const worker = new Worker(
         axeViolations,
         url
       );
+      // Generate PDF report using a separate template function
+      const pdfHtml = generatePdfHtmlTemplate(url, axeViolations);
       const pdfKey = await generatePdfReport(
         s3Service.s3Client,
         jobId,
-        `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Accessibility Report for ${url}</title>
-                <style>/* Add your CSS here */</style>
-            </head>
-            <body>
-                <h1>Accessibility Scan Report</h1>
-                <p><strong>URL:</strong> ${url}</p>
-                <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-                <h2>Issues Found (${axeViolations.length})</h2>
-                ${axeViolations
-                  .map(
-                    (issue) => `
-                    <div class="issue">
-                        <h3>${issue.description}</h3>
-                        <p><strong>Impact:</strong> ${issue.impact}</p>
-                        <p><strong>WCAG:</strong> ${issue.wcagCriterion.join(
-                          ", "
-                        )}</p>
-                        <pre>${JSON.stringify(issue.nodes, null, 2)}</pre>
-                    </div>
-                `
-                  )
-                  .join("")}
-            </body>
-            </html>
-        `
+        pdfHtml
       );
       console.log("Reports generated successfully.");
 

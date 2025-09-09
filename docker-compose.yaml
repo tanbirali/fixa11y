@@ -1,0 +1,59 @@
+services:
+  # The Redis service for the BullMQ queue
+  redis:
+    image: redis:latest
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+
+  # The mock S3 service for local development
+
+  # The backend API server service
+  backend:
+    build: .
+    container_name: backend-server
+    env_file:
+      - ./.env
+    ports:
+      - "8010:8010"
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules # Prevents host modules from overwriting container modules
+    command: npm start
+
+  # The backend worker service
+  worker:
+    build: .
+    container_name: backend-worker
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - backend
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:worker
+
+  # The frontend development server
+  frontend:
+    build: ./frontend
+    container_name: frontend-app
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_API_URL=http://backend:8010/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    mem_limit: 1g
+
+volumes:
+  redis-data:

@@ -48,7 +48,40 @@ const generatePdfReport = async (s3Client, jobId, htmlContent) => {
   }
 };
 
+const generatePdfHtmlTemplate = (url, violations) => {
+  const violationItems = violations
+    .map((violation) => {
+      return `
+      <div style="margin-bottom: 20px;">
+        <h3>Violation: ${violation.id}</h3>
+        <p>Description: ${violation.description}</p>
+        <p>Impact: ${violation.impact}</p>
+        <p>Tags: ${violation.tags.join(", ")}</p>
+      </div>
+      `;
+    })
+    .join("");
+
+  return `
+  <html>
+    <head>
+      <title>Axe-Core Report</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .violation { margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <h1>Axe-Core Report for ${url}</h1>
+      ${violationItems}
+    </body>
+  </html>
+  `;
+};
+
 module.exports = {
   generateJsonReport,
   generatePdfReport,
+  generatePdfHtmlTemplate,
 };

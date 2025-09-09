@@ -23,7 +23,7 @@ const crawlSinglePage = async (url, jobId) => {
     });
     const domContent = await page.content();
     const s3Url = await s3Service.uploadDomObject(jobId, domContent);
-    return s3Url;
+    return { domContent, s3Url };
   } catch (error) {
     console.error(`Error crawling ${url}:`, error);
     throw error;
@@ -36,7 +36,7 @@ const crawlSinglePage = async (url, jobId) => {
 
 const crawlMultiPage = async (url, jobId) => {
   let browser;
-  let snapshots = [];
+  const results = []; // New array to store objects
   const visitedUrls = new Set();
   const urlsToVisit = [url];
   const maxPages = 5;
@@ -59,7 +59,9 @@ const crawlMultiPage = async (url, jobId) => {
         const domContent = await page.content();
         const snapshotId = `${jobId}-${visitedUrls.size}`;
         const s3Url = await s3Service.uploadDomObject(snapshotId, domContent);
-        snapshots.push(s3Url);
+
+        // Store both the DOM content and S3 URL in a single object
+        results.push({ domContent, s3Url, url: currentUrl });
 
         const links = await page.$$eval("a", (anchors) => {
           return Array.from(anchors, (anchor) => anchor.href);
@@ -93,28 +95,11 @@ const crawlMultiPage = async (url, jobId) => {
       await browser.close();
     }
   }
-};
 
-const crawlPageAndReturnDom = async (url) => {
-  let browser;
-  try {
-    browser = await launchBrowser();
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
-    const domContent = await page.content();
-    return domContent;
-  } catch (error) {
-    console.error(`Error crawling single page for DOM content ${url}:`, error);
-    throw error;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
-  }
+  return results; // Return the single array of objects
 };
 
 module.exports = {
   crawlSinglePage,
-  crawlPageAndReturnDom,
   crawlMultiPage,
 };

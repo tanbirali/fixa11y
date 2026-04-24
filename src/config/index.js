@@ -15,5 +15,13 @@ module.exports = {
   puppeteer: {
     headless: process.env.PUPPETEER_HEADLESS === "false" ? false : "new",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath: process.env.executablePath || null,
+  },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+  },
+  openrouter: {
+    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
   },
 };

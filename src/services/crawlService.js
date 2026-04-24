@@ -8,6 +8,8 @@ const launchBrowser = async () => {
   return puppeteer.launch({
     headless: config.puppeteer.headless,
     args: config.puppeteer.args,
+    executablePath:
+      "C:\\Users\\TANBIR ALI\\.cache\\puppeteer\\chrome\\win64-138.0.7204.168\\chrome-win64\\chrome.exe",
   });
 };
 
@@ -22,8 +24,18 @@ const crawlSinglePage = async (url, jobId) => {
       timeout: 60000,
     });
     const domContent = await page.content();
+    const images = await page.$$eval("img", (imgs) => {
+      return imgs
+        .filter((img) => !img.alt || img.alt.trim() === "")
+        .map((img) => ({
+          src: img.src,
+          outerHTML: img.outerHTML,
+          pageUrl: window.location.href
+        }));
+    });
     const s3Url = await s3Service.uploadDomObject(jobId, domContent);
-    return { domContent, s3Url };
+
+    return { domContent, s3Url, violations: [], images }; // returning empty violations array for backward compat if needed, but worker ignores it now.
   } catch (error) {
     console.error(`Error crawling ${url}:`, error);
     throw error;
@@ -60,8 +72,18 @@ const crawlMultiPage = async (url, jobId) => {
         const snapshotId = `${jobId}-${visitedUrls.size}`;
         const s3Url = await s3Service.uploadDomObject(snapshotId, domContent);
 
+        const images = await page.$$eval("img", (imgs) => {
+          return imgs
+            .filter((img) => !img.alt || img.alt.trim() === "")
+            .map((img) => ({
+              src: img.src,
+              outerHTML: img.outerHTML,
+              pageUrl: window.location.href
+            }));
+        });
+
         // Store both the DOM content and S3 URL in a single object
-        results.push({ domContent, s3Url, url: currentUrl });
+        results.push({ domContent, s3Url, url: currentUrl, images });
 
         const links = await page.$$eval("a", (anchors) => {
           return Array.from(anchors, (anchor) => anchor.href);

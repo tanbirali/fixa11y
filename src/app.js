@@ -3,6 +3,10 @@ const cors = require("cors");
 const config = require("./config");
 const crawlRoute = require("./api/crawl");
 const snapshotRoute = require("./api/snapshot");
+const pdfReportRoute = require("./api/reports/pdfReport");
+const jsonReportRoute = require("./api/reports/jsonReport");
+const visionRoute = require("./api/vision");
+const scansRoute = require("./api/scans");
 
 //Initializ the app
 const app = express();
@@ -14,6 +18,10 @@ app.use(express.json());
 
 app.use("/api/v1/crawl", crawlRoute);
 app.use("/api/v1/snapshot", snapshotRoute);
+app.use("/api/v1/reports/pdf", pdfReportRoute);
+app.use("/api/v1/reports/json", jsonReportRoute);
+app.use("/api/v1/vision", visionRoute);
+app.use("/api/v1/scans", scansRoute);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "UP" });

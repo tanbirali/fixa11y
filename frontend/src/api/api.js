@@ -24,3 +24,36 @@ export const fetchDomSnapshot = async (jobId) => {
   }
   return response.text(); // Return raw text for HTML
 };
+
+export const fetchRecentScans = async () => {
+  const response = await fetch(`${API_BASE_URL}/scans/recent`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to fetch recent scans");
+  }
+  return response.json();
+};
+
+export const fetchVisionAudit = async (jobId) => {
+  const response = await fetch(`${API_BASE_URL}/vision/audit/${jobId}`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to fetch vision audit");
+  }
+  return response.json();
+};
+
+export const updateVisionAudit = async (jobId, auditResults) => {
+  const response = await fetch(`${API_BASE_URL}/vision/audit/${jobId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ auditResults }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to update vision audit");
+  }
+  return response.json();
+};

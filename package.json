@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:worker": "node src/workers/crawlerWorker.js"
+    "start:worker": "node src/workers/crawlerWorker.js",
+    "start": "node src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -13,11 +14,14 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
     "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "@axe-core/puppeteer": "^4.10.2",
     "bullmq": "^5.56.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "ioredis": "^5.7.0",
-    "puppeteer": "^24.15.0"
+    "openai": "^6.34.0",
+    "puppeteer": "^24.15.0",
+    "puppeteer-html-pdf": "^4.0.8"
   }
 }

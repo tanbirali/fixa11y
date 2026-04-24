@@ -31,8 +31,8 @@ const addCrawlJob = async (url, multiPage = false) => {
         type: "exponential",
         delay: 1000,
       },
-      removeOnComplete: true,
-      removeOnFail: false,
+      removeOnComplete: 100, // Keep last 100 jobs to show in dashboard
+      removeOnFail: 100,
     }
   );
   console.log(`Added job to crawl queue: ${job.id}`);
@@ -42,4 +42,5 @@ const addCrawlJob = async (url, multiPage = false) => {
 module.exports = {
   addCrawlJob,
   connection,
+  crawlQueue,
 };
